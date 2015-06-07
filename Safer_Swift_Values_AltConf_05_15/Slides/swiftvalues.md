@@ -3,11 +3,22 @@ slidenumbers: true
 
 # Safer Swift Code with Value Types
 
+^
+- My name is Benjamin Encz
+- iOS Developer at Make School
+
 ---
 
 #What do I mean by safety?
 
-![image](images/safety.png)
+![inline](images/safety.png)
+
+^
+- Have you heard about Peter? Got fired from Medium for shipping buggy product
+- Probably not true ;)
+- This talks is not about Software Security
+- It's about reducing the potential for programming error
+- So it's essentially about "Safety" as in "Job Safety" ;)
 
 ---
 
@@ -17,6 +28,13 @@ slidenumbers: true
 2. **Why** is this topic relevant now?
 3. **How:** A Practical Example of a "Value Oriented" Architecture
 
+^
+- 3 Main Parts
+- What: make sure we are on the same page
+- Why now?
+- How is the main point of the presentation! Listend great talk by Andy Matushak that inspired this talk
+- Ideas of Value Orientation appealed to me, wanted to find practical application for my iOS code
+ 
 ---
 
 #[fit] Values vs. References
@@ -43,6 +61,13 @@ peter2.age = 25
 // peter2 {"Peter", 25}
 ```
 
+^ 
+- Defining very simple class - that's one of the reference types in Swift
+- Create an instance assigned to a var
+- Create a second var
+- Modify the second var
+- Age changed for both vars!
+
 ---
 # Value Types
 
@@ -61,6 +86,14 @@ petra2.age = 20
 // petra  {"Petra", 25}
 // petra2 {"Petra", 20}
 ```
+
+^
+- Define struct that looks almost the same
+- Create an instance, assign it to var
+- Assign it to a second var
+- Change age
+- Change is only reflected in first var
+- "Copy on assignment" behavior
 
 ---
 
@@ -95,15 +128,18 @@ petra2.age = 20
 
 ---
 
-#Enums and Structs in Swift
+#Enums and Structs in Swift are Powerful
 
 - Can have variables
 - Can have functions
 - Can implement protocols
 
----
+^ Swift promotes the use of enums/structs by giving them almost all the capabilities of classes
 
-> “Indeed, in contrast to structs, Swift classes support  implementation inheritance, (limited) reflection,  deinitializers, and multiple owners.” - Andy Matushak
+---
+#So What Can't They Do? 
+
+> “Indeed, in contrast to structs, Swift classes support  implementation inheritance, (limited) reflection,  deinitializers, and multiple owners.” - Andy Matushak (http://www.objc.io/issue-16/swift-classes-vs-structs.html)
 
 ---
 
@@ -131,15 +167,15 @@ petra2.age = 20
 
 ---
 
-![inline](images/ValueType_Twitter.png) 
+![inline 120%](images/fetchtweets.png)
 
 ---
 
-![inline](images/ValueType_Twitter_Marked.png)
+#[fit]How can we favorite Tweets?
 
 ---
 
-#Why the **** so complicated??
+#It Is Very Simple with OOP
 
 ```swift
 tweet.favorited = true
@@ -147,15 +183,7 @@ tweet.favorited = true
 
 ---
 
-#Why the **** so complicated??
-
-```swift
-tweet.favorited = true
-```
-
----
-
-#Why so complicated??
+#It Is Simple with OOP
 
 ```swift
 let lockQueue = dispatch_queue_create("com.happylocking", nil)
@@ -166,7 +194,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Why so complicated??
+#Is It Simple with OOP?
 
 ```swift
 let lockQueue = dispatch_queue_create("com.happylocking", nil)
@@ -179,7 +207,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Why so complicated??
+#Modelling Change is Hard!
 
 ```swift
 let lockQueue = dispatch_queue_create("com.happylocking", nil)
@@ -193,7 +221,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Why so complicated??
+#Modelling Change is Hard!
 
 - Protect against unwanted updates
 - Distribute new value
@@ -201,7 +229,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Why so complicated??
+#Modelling Change is Hard!
 
 - Protect against unwanted updates
 - Distribute new value
@@ -209,11 +237,26 @@ dispatch_sync(lockQueue) {
 
 -> **We need to this in all places where we mutate values!**
 
-
 ---
 #[fit]Modelling Change
 #[fit]is Hard!
+
 ---
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to Values as Values**
+
+- Create a new Tweet for every change
+- Save these changes in a *Store*
+- *Store* saves local changes and server state
+- *Store* provides a merged view on list of tweets
+
+---
+
+![inline](images/MergingState.png)
+
+---
+
 #Favoriting a Tweet
 
 ```swift
@@ -229,10 +272,11 @@ dispatch_sync(lockQueue) {
   )
   
   store.addTweetChangeToLocalState(newTweet)
-  tweets = store.tweets
 ```
 
 ---
+
+#Modelling Change
 
 ```swift
 class TweetStore {
@@ -250,8 +294,6 @@ class TweetStore {
     } else {
       localState.append(tweet)
     }
-    
-    postFavorites()
   }
   
   //...
@@ -259,6 +301,30 @@ class TweetStore {
 
 ---
 
+![inline](images/ValueType_Twitter_Marked.png)
+
+---
+
+#Syncing Change
+
+```swift
+struct StateMerge <T> {
+  let originalList: [T]
+  let localState: [T]
+}
+
+enum SyncResult <T> {
+  case Success(StateMerge<T>)
+  case Error(StateMerge<T>)
+}
+
+protocol StoreSync {
+  typealias StoreType
+  
+  static func syncLocalState(merge: StateMerge<StoreType>) 
+  		-> Promise<SyncResult<StoreType>>
+}
+```
 
 
 ---
@@ -268,3 +334,7 @@ class TweetStore {
 - Seperation of behavior and data encourages abstraction
 - Change propagation needs to be handled explicitly
 - No false sense of *identity*
+- Treating change as data opens opportunities:
+	- Undo Functionality
+	- Sophisticated conflict resolution
+	- ... 	

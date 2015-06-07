@@ -150,30 +150,40 @@ tweet.favorited = true
 #Why the **** so complicated??
 
 ```swift
-@synchronized(tweet) {
+tweet.favorited = true
+```
+
+---
+
+#Why so complicated??
+
+```swift
+let lockQueue = dispatch_queue_create("com.happylocking", nil)
+dispatch_sync(lockQueue) {
 	tweet.favorited = true
 }
 ```
 
 ---
 
-#Why the **** so complicated??
+#Why so complicated??
 
 ```swift
-@synchronized(tweet) {
+let lockQueue = dispatch_queue_create("com.happylocking", nil)
+dispatch_sync(lockQueue) {
 	tweet.favorited = true
 	NSNotificationCenter.defaultCenter().
 		postNotificationName("Tweet Changed", object: tweet)
-
 }
 ```
 
 ---
 
-#Why the **** so complicated??
+#Why so complicated??
 
 ```swift
-@synchronized(tweet) {
+let lockQueue = dispatch_queue_create("com.happylocking", nil)
+dispatch_sync(lockQueue) {
 	tweet.favorited = true
 	NSNotificationCenter.defaultCenter().
 		postNotificationName("Tweet Changed", object: tweet)
@@ -183,7 +193,7 @@ tweet.favorited = true
 
 ---
 
-#Why the **** so complicated??
+#Why so complicated??
 
 - Protect against unwanted updates
 - Distribute new value
@@ -191,7 +201,7 @@ tweet.favorited = true
 
 ---
 
-#Why the **** so complicated??
+#Why so complicated??
 
 - Protect against unwanted updates
 - Distribute new value

@@ -32,7 +32,7 @@ slidenumbers: true
 - 3 Main Parts
 - What: make sure we are on the same page
 - Why now?
-- How is the main point of the presentation! Listend great talk by Andy Matushak that inspired this talk
+- How is the main point of the presentation! Listened great talk by Andy Matushak that inspired this talk
 - Ideas of Value Orientation appealed to me, wanted to find practical application for my iOS code
  
 ---
@@ -132,7 +132,7 @@ petra2.age = 20
 
 ^
 - Swift Standard Library has shifted towards value types
-- The only reference types are pretty esotheric (mostly useful to build your own data structures)
+- The only reference types are pretty esoteric (mostly useful to build your own data structures)
 - Array, String, Optional, etc. are value types
 - Indicator that we should make more use of value types in our code?
 - Next: Why did this shift happen?
@@ -267,7 +267,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Modelling Change is Hard!
+#Modeling Change is Hard!
 
 ```swift
 let lockQueue = dispatch_queue_create("com.happylocking", nil)
@@ -283,7 +283,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Modelling Change is Hard!
+#Modeling Change is Hard!
 
 - Protect against unwanted updates
 - Distribute new value throughout application
@@ -291,7 +291,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Modelling Change is Hard!
+#Modeling Change is Hard!
 
 - Protect against unwanted updates
 - Distribute new value
@@ -304,9 +304,10 @@ dispatch_sync(lockQueue) {
 #[fit]is Hard!
 
 ---
+
 #How Can We Model Change With Immutable Value Types?
 
-**Model change to Values as Values**
+**Model change to values as values**
 
 - Create a new Tweet for every change
 - Save these changes in a *Store*
@@ -319,7 +320,6 @@ dispatch_sync(lockQueue) {
 - We keep local state and server state separated
 - Store provides a view by combining server and local state
 - The store can use local state list to trigger API requests that syncs that local state
-
 
 ---
 
@@ -396,16 +396,6 @@ class TweetStore {
 
 ---
 
-![inline](images/ValueType_Twitter_Marked.png)
-
-^
-- Callers can pull data from the store, that data runs through the merge function
-- Callers can add local changes to the store
-- Callers can trigger store to fetch new data
-- How do we sync changes?
-
----
-
 #Syncing Change
 
 1. Iterate over each local change
@@ -424,7 +414,7 @@ class TweetStore {
 
 ```swift
 struct StateMerge <T> {
-  let originalList: [T]
+  let serverState: [T]
   let localState: [T]
 }
 
@@ -447,12 +437,21 @@ protocol StoreSync {
 
 ---
 
+![inline](images/ValueType_Twitter_Marked.png)
+
+^
+- Callers can pull data from the store, that data runs through the merge function
+- Callers can add local changes to the store
+- Callers can trigger store to fetch new data
+- How do we sync changes?
+
+---
+
 #Benefits of "Value Oriented" Architecture
 
 - Confidence that no one will change our data under the covers
 - Change propagation needs to be handled explicitly
-- No false sense of *identity*
-- Modelling change as data opens opportunities:
+- Modeling change as data opens opportunities:
 	- Undo Functionality
 	- Sophisticated conflict resolution
 	- ... 	

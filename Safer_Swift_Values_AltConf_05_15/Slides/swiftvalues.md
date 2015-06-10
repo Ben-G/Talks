@@ -1,17 +1,21 @@
 footer: Safer Swift Code with Value Types | @benjaminencz | AltConf, June 2015 
 slidenumbers: true
 
-# Safer Swift Code with Value Types
+#[fit]Safer Swift Code 
+#[fit]with Value Types
 
 ^
 - My name is Benjamin Encz
 - iOS Developer at Make School
+- What does Safety mean in context of my talk?
+- Not Software Security!
+- Broadly spoken 2 different goals with new techniques: Increase efficiency and reduce possible errors
 
 ---
 
 #What do I mean by safety?
 
-![inline](images/safety.png)
+![inline](images/safety_marked.png)
 
 ^
 - Have you heard about Peter? Got fired from Medium for shipping buggy product
@@ -19,6 +23,7 @@ slidenumbers: true
 - This talks is not about Software Security
 - It's about reducing the potential for programming error
 - So it's essentially about "Safety" as in "Job Safety" ;)
+- Hope to show that immutable value types can expose and solve problems in our codebases
 
 ---
 
@@ -26,7 +31,7 @@ slidenumbers: true
 
 1. **What** are Value Types vs. Reference Types
 2. **Why** is this topic relevant now?
-3. **How:** A Practical Example of a "Value Oriented" Architecture
+3. **How:** A Practical Example of a Value Oriented Architecture
 
 ^
 - 3 Main Parts
@@ -141,17 +146,22 @@ petra2.age = 20
 
 #Enums and Structs in Swift are Powerful
 
-- Can have variables
-- Can have functions
-- Can implement protocols
+- Can have properties
+- Can have method
+- Can conform to protocols
 
 ^ 
 - Swift promotes the use of enums/structs by giving them almost all the capabilities of classes
+- You might wonder, which capabilities are missing from value types that are available in reference types?
 
 ---
 #So What Can't They Do? 
 
-> “Indeed, in contrast to structs, Swift classes support  implementation inheritance, (limited) reflection,  deinitializers, and multiple owners.” - Andy Matushak (http://www.objc.io/issue-16/swift-classes-vs-structs.html)
+> “Indeed, in contrast to structs, Swift classes support  **implementation inheritance**, (limited) reflection,  deinitializers, and **multiple owners**.” 
+
+Andy Matushak[^1]
+
+[^1]:http://www.objc.io/issue-16/swift-classes-vs-structs.html
 
 ^ 
 - Inheritance and multiple ownership are the most important to us
@@ -192,10 +202,10 @@ petra2.age = 20
 
 ---
 
-![inline 120%](images/OOP_Twitter.png)
+![inline 120%](images/OOP_Twitter_light.png)
 
 ^
-- Objects encapsulate data and behavior
+- Objects encapsulate data and behavior (are responsible for one specific domain)
 - E.g Tweet Object has a "favorite" method
 - TwitterClient encapsulates most functionality: Auth, Parsing, API Requests -> Not uncommon to have a such a Client class in our apps
 - Next let's take a look at a value oriented architecture
@@ -294,7 +304,7 @@ dispatch_sync(lockQueue) {
 #Modeling Change is Hard!
 
 - Protect against unwanted updates
-- Distribute new value
+- Distribute new value throughout application
 - Understand what the underlying *identity* of an object is and perform update accordingly
 
 -> **We need to this in all places where we mutate values!**
@@ -307,7 +317,7 @@ dispatch_sync(lockQueue) {
 
 #How Can We Model Change With Immutable Value Types?
 
-**Model change to values as values**
+**Model change to values as values:**
 
 - Create a new Tweet for every change
 - Save these changes in a *Store*
@@ -323,7 +333,7 @@ dispatch_sync(lockQueue) {
 
 ---
 
-![inline](images/MergingState.png)
+![inline 180%](images/MergingState.png)
 
 ^
 - Merging is simple in this app
@@ -372,6 +382,19 @@ class TweetStore {
     }
   }
   
+//...
+``` 
+
+^
+- We lock here to get thread safety
+- tweets is computed property, merges local and server state (could also not be computed, many options here)
+
+---
+
+
+#Modelling Change
+
+```swift 
   func addTweetChangeToLocalState(tweet: Tweet) {
     dispatch_sync(storeQueue) {
       let index = find(self.localState, tweet)
@@ -382,17 +405,11 @@ class TweetStore {
       }
     }
   }
-  
-  //...
 ```
-
 ^
-- We lock here to get thread safety
-- Two important pieces of functionality:
-- tweets is computed property, merges local and server state (could also not be computed, many options here)
 - Additional method allows caller to add tweet to change set. As simplification we only keep newest modified local tweet - also here could be more sophisticated and we could resolve conflicts between multiple local versions
 - That is how we model change
-- What does our complete architecture diagram look like?
+- How do we synchronize change?
 
 ---
 
@@ -413,6 +430,13 @@ class TweetStore {
 
 
 ```swift
+protocol StoreSync {
+  typealias StoreType
+  
+  static func syncLocalState(merge: StateMerge<StoreType>) 
+  		-> Promise<SyncResult<StoreType>>
+}
+
 struct StateMerge <T> {
   let serverState: [T]
   let localState: [T]
@@ -422,22 +446,16 @@ enum SyncResult <T> {
   case Success(StateMerge<T>)
   case Error(StateMerge<T>)
 }
-
-protocol StoreSync {
-  typealias StoreType
-  
-  static func syncLocalState(merge: StateMerge<StoreType>) 
-  		-> Promise<SyncResult<StoreType>>
-}
 ```
 ^
 - No need to dive into detail of code
 - Takes server list and local state
 - Returns success/error and remainder of local list
+- Syncing unsuccessful changes will happen automatically
 
 ---
 
-![inline](images/ValueType_Twitter_Marked.png)
+![inline](images/fetchTweets_sync.png)
 
 ^
 - Callers can pull data from the store, that data runs through the merge function
@@ -447,20 +465,20 @@ protocol StoreSync {
 
 ---
 
-#Benefits of "Value Oriented" Architecture
+#Benefits of a Value Oriented Architecture
 
 - Confidence that no one will change our data under the covers
 - Change propagation needs to be handled explicitly
 - Modeling change as data opens opportunities:
 	- Undo Functionality
 	- Sophisticated conflict resolution
-	- ... 	
 
 ---
-#[fit]Thank you!
+#[fit]The Value Mindset
 
 **Example project:** 
 https://github.com/Ben-G/TwitterSwift
 
-**Get in touch:** 
-@benjaminencz
+**Related, great talks:**
+- https://realm.io/news/andy-matuschak-controlling-complexity/
+- http://www.infoq.com/presentations/Value-Values

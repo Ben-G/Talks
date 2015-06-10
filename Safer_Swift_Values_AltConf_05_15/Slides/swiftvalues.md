@@ -27,7 +27,7 @@ slidenumbers: true
 
 ---
 
-## Agenda
+# Agenda
 
 1. **What** are Value Types vs. Reference Types
 2. **Why** is this topic relevant now?
@@ -172,7 +172,7 @@ Andy Matushak[^1]
 
 ---
 
-#We've already been doing this!
+#We've Already Been Doing This!
 
 ```objectivec
 @property (copy) NSString *userName;
@@ -180,6 +180,7 @@ Andy Matushak[^1]
 
 ^
 - This is a common pattern in Cocoa + Objective-C. We don’t want the value of a string that we are passing on to a view to be changed from outside. We don’t want multiple owners.
+- We use `copy` attribute
 - We already were aware of the problem, now we have a solution
 
 ---
@@ -199,16 +200,6 @@ Andy Matushak[^1]
 1. Download the latest 200 tweets and display them
 2. Allow to filter tweets (RT only, favorited tweets only, etc.)
 3. Allow user to favorite tweets (should be synced with server)
-
----
-
-![inline 120%](images/OOP_Twitter_light.png)
-
-^
-- Objects encapsulate data and behavior (are responsible for one specific domain)
-- E.g Tweet Object has a "favorite" method
-- TwitterClient encapsulates most functionality: Auth, Parsing, API Requests -> Not uncommon to have a such a Client class in our apps
-- Next let's take a look at a value oriented architecture
 
 ---
 
@@ -317,6 +308,18 @@ dispatch_sync(lockQueue) {
 
 #How Can We Model Change With Immutable Value Types?
 
+>
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to values as values!**
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
 **Model change to values as values:**
 
 - Create a new Tweet for every change
@@ -365,51 +368,37 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Modelling Change
+#Modelling Change in Stores
 
 ```swift
 class TweetStore {
  
   var tweets: [Tweet]? {
     get {
-      var mergedList: [Tweet]? = nil
-
-      dispatch_sync(storeQueue) {
-        mergedList = mergeListIntoListLeftPriority(self.localState, self.serverTweets)
-      }
-      
-      return mergedList
+		// merge server list and local list
     }
   }
   
-//...
+  func addTweetChangeToLocalState(tweet: Tweet) {
+  	// append tweet to local list
+  }
+  
+  func loadTweets() -> Promise<[Tweet]> {
+  	// trigger API request, populate server list
+  }
 ``` 
 
 ^
 - We lock here to get thread safety
 - tweets is computed property, merges local and server state (could also not be computed, many options here)
+- Additional method allows caller to add tweet to change set. As simplification we only keep newest modified local tweet - also here could be more sophisticated and we could resolve conflicts between multiple local versions
+- That is how we model change
 
 ---
 
+#Syncing Change
 
-#Modelling Change
-
-```swift 
-  func addTweetChangeToLocalState(tweet: Tweet) {
-    dispatch_sync(storeQueue) {
-      let index = find(self.localState, tweet)
-      if let index = index {
-        self.localState[index] = tweet
-      } else {
-        self.localState.append(tweet)
-      }
-    }
-  }
-```
-^
-- Additional method allows caller to add tweet to change set. As simplification we only keep newest modified local tweet - also here could be more sophisticated and we could resolve conflicts between multiple local versions
-- That is how we model change
-- How do we synchronize change?
+>
 
 ---
 

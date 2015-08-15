@@ -7,9 +7,8 @@ slidenumbers: true
 ^
 - My name is Benjamin Encz
 - iOS Developer at Make School
-- What does Safety mean in context of my talk?
-- Not Software Security!
-- Broadly spoken 2 different goals with new techniques: Increase efficiency and reduce possible errors
+- Today I want to talk about a practical way of implementing a value oriented architecture
+- Want to focus on potential benefits that come from it
 
 ---
 
@@ -23,7 +22,10 @@ slidenumbers: true
 
 
 ^
-- TODO
+- Thanks to Rich Hickey, creator of Clojure, for this great inspiration on how to open a talk
+- Take the dictionary definiton of words you use in title
+- Two definitions of safety fit this context especially well
+- Hopefully I can show that an architecture based on value types can often be more reliable and predictable
 
 ---
 
@@ -42,6 +44,12 @@ It depends! [^4] [^5] [^6] [^7] [^8] [^9]
 [^8]: http://owensd.io/2015/07/05/re-struct-or-class.html
 
 [^9]: https://www.mikeash.com/pyblog/friday-qa-2015-07-17-when-to-use-swift-structs-and-classes.html
+
+^
+- I gave a very first version of this talk at the beginning of this year, since then discussion about struct vs. class has been an ongoing source of discussion
+- A lot of people have given advice on this, Apple itself has contradicting opinions on their blog
+- Today I want to show an example in which the entire model layer is implemented with value types
+- We are all very familiar with reference type based, mutable applications, today I hope to provide insight into a potential solution for a value oriented architecture 
 
 ---
 
@@ -213,7 +221,7 @@ Andy Matushak[^1]
 (http://stackoverflow.com/questions/441309/why-are-mutable-structs-evil)
 
 ---
-#Twitter Clients
+#Twitter Client
 
 1. Download the latest 50 tweets and display them
 2. Allow to filter tweets (RT only, favorited tweets only, etc.)
@@ -221,7 +229,9 @@ Andy Matushak[^1]
 
 ---
 
-![inline 120%](images/fetchtweets.png)
+#Twitter Client sans favoriting feature
+
+![inline 110%](images/fetchtweets.png)
 
 ^
 - Let's leave the favoriting of tweets out of the model for now, it's a little more complex, we'll discuss in a second
@@ -324,6 +334,12 @@ dispatch_sync(lockQueue) {
 
 ![inline](images/InformationFlowOOP.png) 
 
+^
+- Here's visualization of what discussed so far
+- Multiple components share references to mutable objects
+- However, we might have different objects that represent the same tweet (e.g. multiple queries to core data)
+- Updates are propagated manually and information can flow between all components involved
+
 ---
 
 ![inline](images/InformationFlowOOP.png) 
@@ -331,6 +347,13 @@ dispatch_sync(lockQueue) {
 *Safe*, adjective:
 - involving little or no risk of mishap, error, etc.
 - dependable or trustworthy
+
+^
+- Is this programming model safe?
+- Not always!
+- A lot of thought needs to go into any part of application that manipulates state
+- We need to ensure correct state isolation and propagation -> a lot of room for error
+
 
 ---
 
@@ -355,14 +378,26 @@ It depends! [^4] [^5] [^6] [^7] [^8] [^9]
 
 [^9]: https://www.mikeash.com/pyblog/friday-qa-2015-07-17-when-to-use-swift-structs-and-classes.html
 
+^
+- Now we can briefly get back to this question
+
 ---
 
 #It's an architectural question
 
+It's not about `struct` vs. `class`
+
+It's about:
 - Shared state vs. isolated state
-- Mutable state vs. immutable state
+- Mutable state vs. immutable state [^10]
 
 [^10]: https://developer.apple.com/videos/wwdc/2014/
+
+^
+- For me this is primarily an architectural question
+- Do you want implicitly shared, mutable state in your data model? Sometimes can be easier!
+- Or do you prefer isolated immutable state?
+- The latter can be accomplished with immutable reference types as well
 
 ---
 
@@ -375,6 +410,68 @@ It depends! [^4] [^5] [^6] [^7] [^8] [^9]
 #How Can We Model Change With Immutable Value Types?
 
 **Model change to values as values!**
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to values as values:**
+
+* Create a new Tweet for every change
+
+^
+- Every change yields a new Tweet instance
+- We keep local state and server state separated
+- Store provides a view by combining server and local state
+- The store can use local state list to trigger API requests that syncs that local state
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to values as values:**
+
+* Create a new Tweet for every change
+* Save these mutations in a local change set
+
+^
+- Every change yields a new Tweet instance
+- We keep local state and server state separated
+- Store provides a view by combining server and local state
+- The store can use local state list to trigger API requests that syncs that local state
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to values as values:**
+
+* Create a new Tweet for every change
+* Save these mutations in a local change set
+* Save the server state in a separate data set
+
+^
+- Every change yields a new Tweet instance
+- We keep local state and server state separated
+- Store provides a view by combining server and local state
+- The store can use local state list to trigger API requests that syncs that local state
+
+---
+
+#How Can We Model Change With Immutable Value Types?
+
+**Model change to values as values:**
+
+* Create a new Tweet for every change
+* Save these mutations in a local change set
+* Save the server state in a separate data set
+* Provide a merged view on list of tweets
+
+^
+- Every change yields a new Tweet instance
+- We keep local state and server state separated
+- Store provides a view by combining server and local state
+- The store can use local state list to trigger API requests that syncs that local state
 
 ---
 
@@ -407,17 +504,24 @@ It depends! [^4] [^5] [^6] [^7] [^8] [^9]
 
 #How is new truth distributed?
 
+^
+- We can no longer mutate values in place and rely on implicitly shared state
+- We need to think about a *central authority* that can handle that for us
+- The first time around I came up with a custom solution to this problem
+- Since then explored some existing ones
+- Decided to try out the *Flux* architecture that facebook is using for their web frontend
+
 ---
 
 #How is new truth distributed?
 
-Drawing inspiration from the JavaScript world. Unidirectional data flow with flux/redux [^10] [^11]:
+Drawing inspiration from the JavaScript world. Unidirectional data flow with flux/redux [^11] [^12]:
 
-**Unidirectional Data Flow**
+-> **Unidirectional Data Flow**
 
-[^10]: https://facebook.github.io/flux/
+[^11]: https://facebook.github.io/flux/
 
-[^11]: https://github.com/rackt/redux
+[^12]: https://github.com/rackt/redux
 
 ---
 
@@ -434,8 +538,14 @@ Drawing inspiration from the JavaScript world. Unidirectional data flow with flu
 - **ActionCreator**: Provides interface for business logic
 - **Action**: Represents an individual state mutation
 - **Dispatcher**: Stores state, invokes reducers, publishes new state
-- **Reducers**: Combine current state and action to produce a new state
+- **Reducers**: Pure functions, combine current state and action to produce a new state
 
+^
+- Views and View Controllers trigger actions through ActionCreators
+- ActionCreators are sent to Dispatcher
+- Dispatcher invokes action creator, Action creator can create action
+- Dispatcher sends created action (if any) to a reducer
+- Dispatcher distributes new state to all subscribers
 
 ---
 
@@ -450,6 +560,9 @@ typealias TimelineState = (serverState: [Tweet], localState: [Tweet])
 
 typealias TimelineMergedState = (serverState: [Tweet], localState: [Tweet], mergedState: [Tweet])
 ```
+^
+- State is represented as tuple of serverState and localState
+- TimelineMergedState is used to provide the UI with a list of tweets that is computed by serverState and localState
 
 ---
 
@@ -479,7 +592,7 @@ Within the `ActionCreator` we generate an according action:
 
 ```swift
   static func favoriteTweet(tweet: Tweet) -> ActionCreator {
-    return { state, dispatcher in
+    return { state, dispatcher -> Action? in
       return .FavoriteTweet(tweet)
     }
   }
@@ -537,8 +650,11 @@ struct TimelineReducers {
 ```
 
 ^
-- Create a new Tweet and add it to the local state of the store
-- What does the store look like?
+- Here's the interesting part, we derive new state from existing one
+- First create new favorited tweet
+- Then check if tweet is already in local change list (in this app we only remember the latest local change)
+- If not, append to local state
+- Then return new state
 
 ---
 
@@ -588,9 +704,9 @@ extension TimelineViewController: TimelineSubscriber {
 
 - Confidence that no one will change our data under the covers
 - Change propagation needs to be handled explicitly
+- State modification & propagation can be implemented in one place
 - Modeling change as data opens opportunities:
-	- Undo Functionality
-	- Simpler client server sync
+	- e.g. simpler client server sync
 
 ---
 #[fit]The Value Mindset

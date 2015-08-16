@@ -63,7 +63,7 @@ It depends! [^4] [^5] [^6] [^7] [^8] [^9]
 - 3 Main Parts
 - What: make sure we are on the same page
 - Why now?
-- How is the main point of the presentation! Listened great talk by Andy Matushak that inspired this talk
+- How is the main point of the presentation! Listened great talk by Andy Matuschak that inspired this talk
 - Ideas of Value Orientation appealed to me, wanted to find practical application for my iOS code
  
 ---
@@ -173,7 +173,7 @@ petra2.age = 20
 #Enums and Structs in Swift are Powerful
 
 - Can have properties
-- Can have method
+- Can have methods
 - Can conform to protocols
 
 ^ 
@@ -185,7 +185,7 @@ petra2.age = 20
 
 > “Indeed, in contrast to structs, Swift classes support  **implementation inheritance**, (limited) reflection,  deinitializers, and **multiple owners**.” 
 
-Andy Matushak[^1]
+Andy Matuschak[^1]
 
 [^1]:http://www.objc.io/issue-16/swift-classes-vs-structs.html
 
@@ -229,7 +229,7 @@ Andy Matushak[^1]
 
 ---
 
-#Twitter Client sans favoriting feature
+#Twitter Client without favoriting feature
 
 ![inline 110%](images/fetchtweets.png)
 
@@ -269,7 +269,7 @@ tweet.favorited = true
 #It Is Simple with OOP
 
 ```swift
-let lockQueue = dispatch_queue_create("com.happylocking", nil)
+let lockQueue = dispatch_queue_create("com.happysyncing", nil)
 dispatch_sync(lockQueue) {
 	tweet.favorited = true
 }
@@ -282,7 +282,7 @@ dispatch_sync(lockQueue) {
 #Is It Simple with OOP?
 
 ```swift
-let lockQueue = dispatch_queue_create("com.happylocking", nil)
+let lockQueue = dispatch_queue_create("com.happysyncing", nil)
 dispatch_sync(lockQueue) {
 	tweet.favorited = true
 	NSNotificationCenter.defaultCenter().
@@ -299,7 +299,7 @@ dispatch_sync(lockQueue) {
 #Modeling Change is Hard!
 
 ```swift
-let lockQueue = dispatch_queue_create("com.happylocking", nil)
+let lockQueue = dispatch_queue_create("com.happysyncing", nil)
 dispatch_sync(lockQueue) {
 	tweet.favorited = true
 	NSNotificationCenter.defaultCenter().
@@ -330,19 +330,23 @@ dispatch_sync(lockQueue) {
 
 ---
 
-#Traditional Data Flow
+#OOP Data Flow
 
 ![inline](images/InformationFlowOOP.png) 
 
 ^
 - Here's visualization of what discussed so far
+- Information flow from model to view and view to model
 - Multiple components share references to mutable objects
 - However, we might have different objects that represent the same tweet (e.g. multiple queries to core data)
 - Updates are propagated manually and information can flow between all components involved
 
 ---
 
-![inline](images/InformationFlowOOP.png) 
+#Is the OOP Data Flow Safe?
+
+
+![left 50%](images/InformationFlowOOPNoCaption.png) 
 
 *Safe*, adjective:
 - involving little or no risk of mishap, error, etc.
@@ -357,47 +361,32 @@ dispatch_sync(lockQueue) {
 
 ---
 
+#Is the OOP Data Flow Safe?
+
+
+![left 50%](images/InformationFlowOOPNoCaption.png) 
+
+*Safe*, adjective:
+- involving little or no risk of mishap, error, etc.
+- dependable or trustworthy
+
+**-> A lot of room for error**
+
+
+^
+- Is this programming model safe?
+- Not always!
+- A lot of thought needs to go into any part of application that manipulates state
+- We need to ensure correct state isolation and propagation -> a lot of room for error
+
+
+---
+
 #[fit]Modelling Change
 #[fit]is Hard!
 
----
-
-#Should I use a struct or a class?
-
-It depends! [^4] [^5] [^6] [^7] [^8] [^9]
-
-[^4]: GitHub Styleguide: "Unless you require functionality that can only be provided by a class (like identity or deinitializers), implement a struct instead"
-
-[^5]: Apple Developer Guide: "In practice, this means that most custom data constructs should be classes, not structures"
-
-[^6]: Apple Swift Blog: "One of the primary reasons to choose value types over reference types is the ability to more easily reason about your code."
-
-[^7]: http://faq.sealedabstract.com/structs_or_classes/: "when it comes time to actually save any of those models to disk, or push them over a network, or draw them to the screen, or whatever, you need a class. Classes everywhere. Not "immutable valuable types everywhere" like in the Struct Philosophy™"
-
-[^8]: http://owensd.io/2015/07/05/re-struct-or-class.html
-
-[^9]: https://www.mikeash.com/pyblog/friday-qa-2015-07-17-when-to-use-swift-structs-and-classes.html
-
 ^
-- Now we can briefly get back to this question
-
----
-
-#It's an architectural question
-
-It's not about `struct` vs. `class`
-
-It's about:
-- Shared state vs. isolated state
-- Mutable state vs. immutable state [^10]
-
-[^10]: https://developer.apple.com/videos/wwdc/2014/
-
-^
-- For me this is primarily an architectural question
-- Do you want implicitly shared, mutable state in your data model? Sometimes can be easier!
-- Or do you prefer isolated immutable state?
-- The latter can be accomplished with immutable reference types as well
+- This is true for object oriented approach and the value oriented approach
 
 ---
 
@@ -502,20 +491,20 @@ It's about:
 
 ---
 
-#How is new truth distributed?
+#Where do we store state, how is new state distributed?
 
 ^
 - We can no longer mutate values in place and rely on implicitly shared state
-- We need to think about a *central authority* that can handle that for us
+- We need to think about a *central authority* that can handle that for us 
 - The first time around I came up with a custom solution to this problem
 - Since then explored some existing ones
 - Decided to try out the *Flux* architecture that facebook is using for their web frontend
 
 ---
 
-#How is new truth distributed?
+#Where do we store state, how is new state distributed?
 
-Drawing inspiration from the JavaScript world. Unidirectional data flow with flux/redux [^11] [^12]:
+Drawing inspiration from the JavaScript world [^11] [^12]:
 
 -> **Unidirectional Data Flow**
 
@@ -527,7 +516,7 @@ Drawing inspiration from the JavaScript world. Unidirectional data flow with flu
 
 #Unidirectional data flow
 
-![inline](images/InformationFlow.png)
+![inline 66%](images/InformationFlow.png)
 
 ---
 
@@ -546,6 +535,7 @@ Drawing inspiration from the JavaScript world. Unidirectional data flow with flu
 - Dispatcher invokes action creator, Action creator can create action
 - Dispatcher sends created action (if any) to a reducer
 - Dispatcher distributes new state to all subscribers
+- State only changes through actions; there's no other way
 
 ---
 
@@ -555,14 +545,41 @@ Drawing inspiration from the JavaScript world. Unidirectional data flow with flu
 
 #Representing State
 
+- State will be stored in the Dispatcher in the following form:
+
 ```swift
 typealias TimelineState = (serverState: [Tweet], localState: [Tweet])
 
-typealias TimelineMergedState = (serverState: [Tweet], localState: [Tweet], mergedState: [Tweet])
+typealias TimelineMergedState = (serverState: [Tweet], 
+                                  localState: [Tweet], 
+                                 mergedState: [Tweet])
 ```
 ^
 - State is represented as tuple of serverState and localState
 - TimelineMergedState is used to provide the UI with a list of tweets that is computed by serverState and localState
+
+---
+#Defining Actions
+
+- Each action describes an atomic mutation to the application state
+- Action Creators vend these Actions Reducers implement them
+
+```swift
+enum Action {
+  case Mount
+  case FavoriteTweet(Tweet)
+  case UnfavoriteTweet(Tweet)
+  case SetServerState([Tweet])
+  case SetLocalState([Tweet])
+}
+```
+
+^
+- Actions describe individual operations that can change the state of the app
+- Mount populates the initial state
+- Favoriting & Unfavoriting modify individual tweets
+- Methods to set entire local and server state are used for server sync
+- E.g. when server sync completes, entire server state is reset
 
 ---
 
@@ -584,6 +601,12 @@ Within the `TimelineViewController` we trigger the state change by dispatching a
   }
 ```
 
+^
+- Dispatcher and Action Creators serve as interface to the application logic
+- When we want to modify state, we dispatch an action creator
+- Here we dispatch favorite/unfavorite
+- Then we dispatch synchronization
+
 ---
 
 #Favoriting a Tweet
@@ -601,6 +624,8 @@ Within the `ActionCreator` we generate an according action:
 ^
 - This indirection is helpful, because the ActionCreator receives a reference to the current state and the dispatcher
 - This means the ActionCreator can decide which action to create based on the current state and it can also dispatch delayed actions
+- This is the simplest possible example of an action creator
+- Synchronization action creator is more complex, dispatches after callback instead of returning an action
 
 ---
 
@@ -619,6 +644,10 @@ struct TimelineReducers {
 	
 }
 ```
+
+^
+- The reducer is where the state modification happens
+- it receives current state and relevant data for the action and returns the new state
 
 ---
 
@@ -666,11 +695,28 @@ Then the `Dispatcher` forwards the new state to its subscribers, which inlcudes 
 extension TimelineViewController: TimelineSubscriber {
   
   func newState(state: TimelineMergedState) {
+    // table view is reloaded when 'tweets' is set
     tweets = state.mergedState
   }
   
 }
 ```
+^
+- Dispatcher invokes subscribers with new state
+- Subscriber updates UI
+- In this case table view is reloaded whenever `tweets` is set to a value
+
+---
+
+#Favoriting a Tweet: Recap
+
+![inline](images/InformationFlowNoCaption.png)
+
+^
+- We saw a lot of code
+- In case you lost track, here's again the overview of the information flow
+- UI -> Dispatcher -> Reducer -> UI
+
 
 ---
 
@@ -678,11 +724,38 @@ extension TimelineViewController: TimelineSubscriber {
 
 >
 
+^ 
+- another interesting feature with this architecture is server sync
+- Want to discuss briefly conceptually, but not dive into code 
+
 ---
 
 #Syncing Change
 
-1. Iterate over each local change
+1. Iterate over each mutation in the local change set
+2. Generate API request that syncs that local change to server
+3. Upon each API response:
+	- If success: remove tweet from local change set
+	- If failure: leave tweet in local change set
+	
+^
+- Changes that couldn't be synced successfully stay in local change set and get synced again later 
+
+---
+
+#Syncing Change
+
+1. Iterate over each mutation in the local change set
+2. Generate API request that syncs that local change to server
+	
+^
+- Changes that couldn't be synced successfully stay in local change set and get synced again later 
+
+---
+
+#Syncing Change
+
+1. Iterate over each mutation in the local change set
 2. Generate API request that syncs that local change to server
 3. Upon each API response:
 	- If success: remove tweet from local change set
@@ -694,19 +767,55 @@ extension TimelineViewController: TimelineSubscriber {
 ---
 
 
-#Summary
+#A Twitter Client built on Immutable Value Types
 
-![inline fill 150%](images/MergingState.png)  ![inline fill 50%](images/InformationFlowNoCaption.png)
+![inline fill 150%](images/MergingState.png)  ![inline fill 50%](images/InformationFlowNoCaptionNoArrow.png)
+
+^
+- Two main ingredients for this architecture: Store local modifications separately from server state; generate merged view + flux unidirectional data flow
+
+---
+
+#Should I use a struct or a class?
+
+
+
+
+#It's an architectural question!
+
+It's not about `struct` vs. `class`
+
+It's about:
+- Shared state vs. isolated state
+- Mutable state vs. immutable state [^10]
+
+[^10]: https://developer.apple.com/videos/wwdc/2014/
+
+^
+- For me this is primarily an architectural question
+- Do you want implicitly shared, mutable state in your data model? Sometimes can be easier!
+- Or do you prefer isolated immutable state?
+- The latter can be accomplished with immutable reference types as well
+
+---
+
+#Downsides of a Value Oriented Architecture
+
+- Unconventional: can be an issue when working on larger teams
+- Can be difficult to integrate with frameworks that rely on reference semantics, e.g. Core Data
 
 ---
 
 #Benefits of a Value Oriented Architecture
 
 - Confidence that no one will change our data under the covers
-- Change propagation needs to be handled explicitly
-- State modification & propagation can be implemented in one place
-- Modeling change as data opens opportunities:
-	- e.g. simpler client server sync
+- State modification & propagation needs to be handled explicitly and can be implemented in one place
+- Modeling change as data opens opportunities, e.g. simpler client server sync
+- Easier to test
+
+^
+- Implementing state modification & propagation in one place means that we can reuse the code for multiple types, this is alternative to inhertiance
+
 
 ---
 #[fit]The Value Mindset

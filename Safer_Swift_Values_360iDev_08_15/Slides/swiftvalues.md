@@ -229,21 +229,9 @@ Andy Matuschak[^1]
 
 ---
 
-#Twitter Client without favoriting feature
+#Twitter Client
 
-![inline 110%](images/fetchtweets.png)
-
-^
-- Let's leave the favoriting of tweets out of the model for now, it's a little more complex, we'll discuss in a second
-- Classes/Structs in rectangles
-- Circles are functions
-- Simple Value and User structs
-- ViewController and Tweet Cell
-- Rest are functions that are composed together
-- Instead of bulky *Client* class we have isolated functions with well defined inputs and outputs
-- **Encourages reuse!** e.g. Image Download function
-- I think we can agree that this is a fine architecture
-- What about favoriting? Why is it complicated enough to leave out of this diagram?
+![inline image](images/twitterapp.png)
 
 ---
 
@@ -733,10 +721,6 @@ extension TimelineViewController: TimelineSubscriber {
 #Syncing Change
 
 1. Iterate over each mutation in the local change set
-2. Generate API request that syncs that local change to server
-3. Upon each API response:
-	- If success: remove tweet from local change set
-	- If failure: leave tweet in local change set
 	
 ^
 - Changes that couldn't be synced successfully stay in local change set and get synced again later 
@@ -779,8 +763,6 @@ extension TimelineViewController: TimelineSubscriber {
 #Should I use a struct or a class?
 
 
-
-
 #It's an architectural question!
 
 It's not about `struct` vs. `class`
@@ -789,7 +771,7 @@ It's about:
 - Shared state vs. isolated state
 - Mutable state vs. immutable state [^10]
 
-[^10]: https://developer.apple.com/videos/wwdc/2014/
+[^10]: WWDC 2014, Session 229, Advanced iOS Application Architecture and Patterns
 
 ^
 - For me this is primarily an architectural question

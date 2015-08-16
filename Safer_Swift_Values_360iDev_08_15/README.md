@@ -1,5 +1,3 @@
 #Safer Swift Code With Value Types @360 iDev
 
-Example Project: [GitHub Repo (360iDev-branch)](https://github.com/Ben-G/TwitterSwift/tree/360iDev)
-
-Slides:
+Slides: [Speakerdeck](https://speakerdeck.com/benjamin_encz/safer-swift-code-with-value-types-ii-360idev-2015) | [GitHub Repo](https://github.com/Ben-G/Twitter-Swift-Flux)

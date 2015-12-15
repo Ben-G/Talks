@@ -59,14 +59,16 @@ The essential purpose of MVC is to bridge the gap between the human user's menta
 
 ---
 
-##MVC is an (outdated) design pattern - not an application architecture
+###MVC is not a holistic 
+###application architecture
 
 ^
 - Old doesn't necessary mean bad; so I want to give a short example of the shortcomings of MVC
 
 ---
 
-##Problem #1: View Controllers are micromanagers
+##Problem #1: 
+##View Controllers are micromanagers
 
 ####Image Credits: nakedpastor.com
 
@@ -97,7 +99,8 @@ The essential purpose of MVC is to bridge the gap between the human user's menta
 
 ---
 
-##Problem #2: Where is state?
+##Problem #2: 
+##Where is state?
 
 ^
 - If you become good at moving code out of VC's you have somewhat solved the first issue and you at least won't end up with VCs with multiple thousands lines of code
@@ -207,13 +210,14 @@ In complex applications you will have a whole set of different reducers; each re
 
 ####Actions:
 
-##Declarative description of a state change
+###Declarative description 
+###of a state change
 
 ---
 
 ##Swift Flow
 
-####(Soon to be Open Source) Redux implementation in Swift
+####Unfinished Open Source Redux implementation in Swift
 
 ---
 
@@ -337,11 +341,6 @@ struct CounterReducer: Reducer {
 #Why Swift Flow?
 
 - Separation of concerns
-- Decoupling of intent and implementation
-- Clear, Declarative API
-- Predictable, explicit state
-- Program has a shape
-- Automatic state propagation
 
 ^
 - An action captures an intent; an intent can be implemented in many different ways and might involve different parts of your application logic over time. E.g. deleting a record might today mean simply deleting it from a database - next year you need to add an analytics call. In MVC you need to revisit you business logic or view controller and clutter them with analytics calls; with Swift Flow you can respond to the same action in multiple reducers/subscribers - you can compose functionality on top of actions without the individual parts needing to know about each other	
@@ -353,46 +352,60 @@ The more constraints you have established in code, the more safe assumptions the
 
 ---
 
+#Why Swift Flow?
+
+- Separation of concerns
+- Decoupling of intent and implementation
+
+---
+
+#Why Swift Flow?
+
+- Separation of concerns
+- Decoupling of intent and implementation
+- Clear, Declarative API
+
+---
+
+#Why Swift Flow?
+
+- Separation of concerns
+- Decoupling of intent and implementation
+- Clear, Declarative API
+- Predictable, explicit state
+
+---
+
+#Why Swift Flow?
+
+- Separation of concerns
+- Decoupling of intent and implementation
+- Clear, Declarative API
+- Predictable, explicit state
+- Program has a shape
+
+---
+
+#Why Swift Flow?
+
+- Separation of concerns
+- Decoupling of intent and implementation
+- Clear, Declarative API
+- Predictable, explicit state
+- Program has a shape
+- Automatic state propagation
+
+---
+
+
 #Credits
 
-Gerald, Redux, Jake
+- Gerald Monaco (@devknoll) for introducing me to Redux
+- Dan Abramov (@dan_abramov) for building Redux
+- Jake Craige (@jakecraige) for feedback and support during implementation
 
 ---
 
-#Resources
-
-https://heim.ifi.uio.no/~trygver/2003/javazone-jaoo/MVC_pattern.pdf
-
----
-
-#View Controllers = Integration of Concerns
----
-
-#Why do we end up with massive view controllers?
-
----
-
-#To date we don't have an application architecture framework for iOS
-
----
- 
-#Where is state?
-
-
----
-
-I've lost count of the times I've seen something described as MVC which turned out to be nothing like it. Frankly a lot of the reason for this is that parts of classic MVC don't really make sense for rich clients these days.
-
----
-
-View Logic: 
-
- - (State) -> View
- - () -> Action
-
-Application Logic: 
-
- - (Action, State) -> State
- - (State) -> Action
-
----
+###speakerdeck.com/benjamin_encz
+-
+###github.com/Swift-Flow

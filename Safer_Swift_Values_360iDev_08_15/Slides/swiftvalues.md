@@ -170,34 +170,6 @@ petra2.age = 20
 
 ---
 
-#Enums and Structs in Swift are Powerful
-
-- Can have properties
-- Can have methods
-- Can conform to protocols
-
-^ 
-- Swift promotes the use of enums/structs by giving them almost all the capabilities of classes
-- You might wonder, which capabilities are missing from value types that are available in reference types?
-
----
-#So What Can't They Do? 
-
-> “Indeed, in contrast to structs, Swift classes support  **implementation inheritance**, (limited) reflection,  deinitializers, and **multiple owners**.” 
-
-Andy Matuschak[^1]
-
-[^1]:http://www.objc.io/issue-16/swift-classes-vs-structs.html
-
-^ 
-- Inheritance and multiple ownership are the most important to us
-- Maybe value types can mitigate these disadvantages?
-- I will try to show: multiple owners is seldom desirable
-- Code reuse can happen outside of inheritance
-- Just because it's possible doesn't mean we should do it. What's the motivation? 
-
----
-
 #We've Already Been Doing This!
 
 ```objectivec
@@ -504,7 +476,13 @@ Drawing inspiration from the JavaScript world [^11] [^12]:
 
 #Unidirectional data flow
 
-![inline 66%](images/InformationFlow.png)
+![inline 64%](images/InformationFlow.png)
+
+^
+- Here's an illustration of what this architecture looks like
+- Discuss each component in detail on next slide
+- Most important: Unidirectional Data Flow
+- Dispatcher stores state and distributes
 
 ---
 
@@ -550,15 +528,14 @@ typealias TimelineMergedState = (serverState: [Tweet],
 #Defining Actions
 
 - Each action describes an atomic mutation to the application state
-- Action Creators vend these Actions Reducers implement them
+- Action Creators vend these Actions, Reducers implement them
 
 ```swift
 enum Action {
   case Mount
   case FavoriteTweet(Tweet)
   case UnfavoriteTweet(Tweet)
-  case SetServerState([Tweet])
-  case SetLocalState([Tweet])
+  //...
 }
 ```
 
@@ -599,7 +576,7 @@ Within the `TimelineViewController` we trigger the state change by dispatching a
 
 #Favoriting a Tweet
 
-Within the `ActionCreator` we generate an according action:
+Within the `TimelineActionCreator` we generate an according action:
 
 ```swift
   static func favoriteTweet(tweet: Tweet) -> ActionCreator {
@@ -804,7 +781,7 @@ It's about:
 
 **Twitter**: @benjaminencz
 
-**Project & Slides:** https://github.com/Ben-G/TwitterSwift
+**Project & Slides:** http://bit.ly/swift-values
 
 **Related, great talks:** Controlling Complexity [^20], The Value of Values [^21]
 
